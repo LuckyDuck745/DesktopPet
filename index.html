@@ -12,7 +12,7 @@
             padding: 15px; border-radius: 10px; width: 280px; 
         }
         h3 { margin-top: 0; color: #ffcc00; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; }
-        #sheet-content { font-size: 13px; line-height: 1.5; color: #00ff00; }
+        #log-content { font-size: 13px; line-height: 1.5; color: #00ff00; }
         .stat { color: #00ffff; font-weight: bold; }
     </style>
 </head>
@@ -26,7 +26,7 @@
 
     <div id="update-panel">
         <h3>Recent Updates</h3>
-        <div id="sheet-content">Syncing with Dale's Brain...</div>
+        <div id="log-content"></div>
     </div>
 
     <img id="pet" src="kaczuha1.gif">
@@ -35,24 +35,19 @@
         const pet = document.getElementById('pet');
         const sizeVal = document.getElementById('size-val');
         const tossVal = document.getElementById('toss-val');
-        const log = document.getElementById('sheet-content');
+        const log = document.getElementById('log-content');
 
-        // PASTE YOUR NEW LINK HERE (The one ending in output=csv)
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdORjnp7BDGsEvMp2PqGz96H4uV7ZL0jV5h8taez6p6QiqTR_W8w40-fcJeikp-vUJb3S6rvTPfyn/pub?output=csv";
+        // --- EDIT YOUR UPDATES HERE ---
+        const updates = [
+            "Dale is officially live!",
+            "Renamed from Kaczuha to Dale.",
+            "Toss tracker added!",
+            "Manual logs enabled (No more Sheets!)"
+        ];
+        // ------------------------------
 
-        async function getUpdates() {
-            try {
-                const response = await fetch(sheetURL + "&t=" + Date.now());
-                const data = await response.text();
-                const lines = data.split(/\r?\n/).filter(l => l.trim() !== "");
-                log.innerHTML = lines.map(line => `• ${line.replace(/^"|"$/g, '')}`).join('<br>');
-            } catch (e) {
-                log.innerHTML = "• Dale is live!<br>• Grow Dale by dragging him.";
-            }
-        }
-        
-        getUpdates();
-        setInterval(getUpdates, 30000);
+        // Display the list
+        log.innerHTML = updates.map(line => `• ${line}`).join('<br>');
 
         let posX = 150, posY = 150, targetX = 150, targetY = 150, size = 100, tosses = 0;
         let isDragging = false;
