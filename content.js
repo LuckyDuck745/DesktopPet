@@ -1,45 +1,43 @@
-// 1. Create the Pet Element
-const pet = document.createElement('div');
-pet.id = 'Dale';
-pet.innerHTML = ' ( •_•) '; // You can replace this with an <img> tag later
-document.body.appendChild(pet);
-
-// 2. Initial Variables
-let posX = window.innerWidth / 2;
-let posY = window.innerHeight - 100;
-let targetX = posX;
-let targetY = posY;
-let speed = 2;
-
-// 3. The "Brain" (Decides what to do every 3 seconds)
-setInterval(() => {
-    const chance = Math.random();
+// 5. Interaction Logic (React to Clicks)
+pet.addEventListener('mousedown', () => {
+    // Change face when poked
+    pet.innerHTML = ' ( >_<) '; 
+    pet.style.color = '#ff5555'; // Turn red for a second
     
-    if (chance > 0.5) {
-        // Pick a random spot on the screen to walk to
-        targetX = Math.random() * (window.innerWidth - 50);
-        targetY = Math.random() * (window.innerHeight - 50);
-        pet.innerHTML = ' ( ﾟДﾟ) '; // "Walking" face
-    } else {
-        pet.innerHTML = ' ( -_-)zZ '; // "Sleeping" face
-    }
-}, 3000);
+    // Reset back to normal after 1 second
+    setTimeout(() => {
+        pet.innerHTML = ' ( •_•) ';
+        pet.style.color = 'white';
+    }, 1000);
+});
 
-// 4. The "Movement" (Runs 60 times per second for smooth sliding)
-function update() {
-    // Move X
-    if (Math.abs(posX - targetX) > speed) {
-        posX += posX < targetX ? speed : -speed;
-    }
-    // Move Y
-    if (Math.abs(posY - targetY) > speed) {
-        posY += posY < targetY ? speed : -speed;
-    }
+// 6. Make it Draggable (Bonus Logic)
+pet.onmousedown = function(event) {
+  // Prevent the pet from moving on its own while you hold it
+  speed = 0;
 
+  function moveAt(pageX, pageY) {
+    posX = pageX - pet.offsetWidth / 2;
+    posY = pageY - pet.offsetHeight / 2;
     pet.style.left = posX + 'px';
     pet.style.top = posY + 'px';
-    
-    requestAnimationFrame(update);
-}
+  }
 
-update(); // Start the loop
+  function onMouseMove(event) {
+    moveAt(event.pageX, event.pageY);
+  }
+
+  document.addEventListener('mousemove', onMouseMove);
+
+  pet.onmouseup = function() {
+    document.removeEventListener('mousemove', onMouseMove);
+    pet.onmouseup = null;
+    speed = 2; // Give it its movement back
+    targetX = posX; // Reset its destination to where you dropped it
+    targetY = posY;
+  };
+};
+
+pet.ondragstart = function() {
+  return false;
+};
