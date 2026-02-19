@@ -1,43 +1,62 @@
-// 5. Interaction Logic (React to Clicks)
-pet.addEventListener('mousedown', () => {
-    // Change face when poked
-    pet.innerHTML = ' ( >_<) '; 
-    pet.style.color = '#ff5555'; // Turn red for a second
-    
-    // Reset back to normal after 1 second
-    setTimeout(() => {
-        pet.innerHTML = ' ( •_•) ';
-        pet.style.color = 'white';
-    }, 1000);
-});
+// 1. Setup the Duck
+const pet = document.createElement('img');
+pet.id = 'my-pet';
 
-// 6. Make it Draggable (Bonus Logic)
-pet.onmousedown = function(event) {
-  // Prevent the pet from moving on its own while you hold it
-  speed = 0;
+// Link your specific files
+const idleGif = chrome.runtime.getURL("kaczuha1.gif");
+const walkPng = chrome.runtime.getURL("kaczuha 2 1.png");
 
-  function moveAt(pageX, pageY) {
-    posX = pageX - pet.offsetWidth / 2;
-    posY = pageY - pet.offsetHeight / 2;
+pet.src = idleGif;
+document.body.appendChild(pet);
+
+// 2. Position Variables
+let posX = Math.random() * (window.innerWidth - 100);
+let posY = Math.random() * (window.innerHeight - 100);
+let targetX = posX;
+let targetY = posY;
+let isMoving = false;
+let speed = 1.5;
+
+// 3. Movement Logic
+function update() {
+    const distX = targetX - posX;
+    const distY = targetY - posY;
+    const distance = Math.sqrt(distX * distX + distY * distY);
+
+    if (distance > 5) {
+        isMoving = true;
+        posX += (distX / distance) * speed;
+        posY += (distY / distance) * speed;
+        
+        // Swap to the walking image
+        if (pet.src !== walkPng) pet.src = walkPng;
+        
+        // Flip duck to face the direction it's walking
+        pet.style.transform = distX > 0 ? 'scaleX(1)' : 'scaleX(-1)';
+    } else {
+        isMoving = false;
+        // Swap back to the animated idle GIF
+        if (pet.src !== idleGif) pet.src = idleGif;
+    }
+
     pet.style.left = posX + 'px';
     pet.style.top = posY + 'px';
-  }
+    
+    requestAnimationFrame(update);
+}
 
-  function onMouseMove(event) {
-    moveAt(event.pageX, event.pageY);
-  }
+// 4. Decision Maker (Changes target every 3-5 seconds)
+setInterval(() => {
+    if (Math.random() > 0.3) {
+        targetX = Math.random() * (window.innerWidth - 100);
+        targetY = Math.random() * (window.innerHeight - 100);
+    }
+}, 4000);
 
-  document.addEventListener('mousemove', onMouseMove);
+// 5. Interaction (React to Click)
+pet.addEventListener('mousedown', () => {
+    pet.style.filter = 'brightness(1.5)';
+    setTimeout(() => pet.style.filter = 'none', 200);
+});
 
-  pet.onmouseup = function() {
-    document.removeEventListener('mousemove', onMouseMove);
-    pet.onmouseup = null;
-    speed = 2; // Give it its movement back
-    targetX = posX; // Reset its destination to where you dropped it
-    targetY = posY;
-  };
-};
-
-pet.ondragstart = function() {
-  return false;
-};
+update();
