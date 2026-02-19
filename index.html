@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kaczuha's Room</title>
+    <style>
+        body {
+            background-color: #2c3e50; /* Dark background so the duck pops */
+            margin: 0;
+            overflow: hidden; /* Stops scrollbars from appearing */
+            height: 100vh;
+        }
+        #duck {
+            position: absolute;
+            width: 150px; /* Bigger since it's a full page */
+            transition: transform 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <img id="duck" src="kaczuha1.gif">
+
+    <script>
+        const duck = document.getElementById('duck');
+        const idleGif = "kaczuha1.gif";
+        const walkPng = "kaczuha 2 1.png";
+
+        let posX = 100, posY = 100;
+        let targetX = 100, targetY = 100;
+        let speed = 2;
+
+        function moveDuck() {
+            const distX = targetX - posX;
+            const distY = targetY - posY;
+            const distance = Math.sqrt(distX * distX + distY * distY);
+
+            if (distance > 5) {
+                posX += (distX / distance) * speed;
+                posY += (distY / distance) * speed;
+                duck.src = walkPng;
+                duck.style.transform = distX > 0 ? "scaleX(1)" : "scaleX(-1)";
+            } else {
+                duck.src = idleGif;
+            }
+
+            duck.style.left = posX + 'px';
+            duck.style.top = posY + 'px';
+            requestAnimationFrame(moveDuck);
+        }
+
+        // Move to where you click
+        window.addEventListener('mousedown', (e) => {
+            targetX = e.clientX - 75;
+            targetY = e.clientY - 75;
+        });
+
+        // Randomly wander every few seconds
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                targetX = Math.random() * (window.innerWidth - 150);
+                targetY = Math.random() * (window.innerHeight - 150);
+            }
+        }, 3000);
+
+        moveDuck();
+    </script>
+</body>
+</html>
