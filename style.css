@@ -1,9 +1,11 @@
 #Dale {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  font-size: 30px;
-  cursor: grab;
-  user-select: none;
+    position: fixed;
+    width: 80px;  /* You can change this to make the duck bigger or smaller */
+    height: auto;
+    z-index: 1000000;
+    cursor: grab;
+    transition: transform 0.2s; 
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-drag: none;
 }
