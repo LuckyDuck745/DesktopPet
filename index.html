@@ -4,26 +4,13 @@
     <title>Dale's World</title>
     <style>
         body { margin: 0; background: #1b3022; color: white; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; }
-        
-        /* If Dale is missing, you'll see a faint yellow box where he should be */
-        #pet { 
-            position: absolute; 
-            width: 100px; 
-            cursor: grab; 
-            image-rendering: pixelated; 
-            transition: width 0.3s; 
-            z-index: 10;
-            border: 1px dashed rgba(255, 204, 0, 0.3); 
-        }
-        
+        #pet { position: absolute; width: 100px; cursor: grab; image-rendering: pixelated; z-index: 10; }
         #ui { position: fixed; top: 20px; left: 20px; pointer-events: none; text-shadow: 2px 2px black; }
-        
         #update-panel { 
             position: fixed; bottom: 20px; right: 20px; 
             background: rgba(0,0,0,0.85); border: 2px solid #ffcc00;
             padding: 15px; border-radius: 10px; width: 280px; 
         }
-        
         h3 { margin-top: 0; color: #ffcc00; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; }
         #log-content { font-size: 13px; line-height: 1.5; color: #00ff00; }
         .stat { color: #00ffff; font-weight: bold; }
@@ -42,7 +29,7 @@
         <div id="log-content"></div>
     </div>
 
-    <img id="pet" src="kaczuha1.gif" alt="Dale is loading...">
+    <img id="pet" src="https://openclipart.org/image/800px/216503" alt="Dale is loading...">
 
     <script>
         const pet = document.getElementById('pet');
@@ -52,9 +39,8 @@
 
         const updates = [
             "Dale is officially live!",
-            "Toss tracker added!",
-            "Manual logs enabled.",
-            "If Dale is invisible, check file names!"
+            "Toss tracker enabled!",
+            "Testing visibility with a backup duck..."
         ];
 
         log.innerHTML = updates.map(line => `• ${line}`).join('<br>');
@@ -72,7 +58,7 @@
         window.onmouseup = () => { 
             if(isDragging) {
                 isDragging = false; 
-                size += 5; 
+                size += 10; 
                 tosses += 1;
                 pet.style.width = size + 'px';
                 sizeVal.innerText = size;
@@ -86,12 +72,6 @@
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist > 5) {
                     posX += dx * 0.05; posY += dy * 0.05;
-                    // Make sure this name matches your upload!
-                    pet.src = "kaczuha 2 1.png";
-                    pet.style.transform = dx > 0 ? "scaleX(1)" : "scaleX(-1)";
-                } else {
-                    // Make sure this name matches your upload!
-                    pet.src = "kaczuha1.gif";
                 }
             }
             pet.style.left = posX + 'px'; pet.style.top = posY + 'px';
