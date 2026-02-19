@@ -3,88 +3,87 @@
 <head>
     <title>Dale's World</title>
     <style>
-        body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; height: 100vh; }
-        #pet {
-            position: absolute;
-            width: 100px;
-            cursor: grab;
-            image-rendering: pixelated;
-            transition: width 0.3s; /* Smooth growth */
+        body { margin: 0; background: #1a1a1a; color: white; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; }
+        #pet { position: absolute; width: 100px; cursor: grab; image-rendering: pixelated; transition: width 0.3s; z-index: 10; }
+        #ui { position: fixed; top: 20px; left: 20px; pointer-events: none; text-shadow: 2px 2px black; }
+        #update-panel { 
+            position: fixed; bottom: 20px; right: 20px; 
+            background: rgba(0,0,0,0.85); border: 2px solid #ffcc00;
+            padding: 15px; border-radius: 10px; width: 280px; 
         }
-        #ui-layer { position: fixed; top: 10px; left: 10px; pointer-events: none; }
-        #update-log {
-            position: fixed; bottom: 10px; right: 10px;
-            background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;
-            font-size: 12px; max-width: 200px;
-        }
+        h3 { margin-top: 0; color: #ffcc00; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; }
+        #sheet-content { font-size: 13px; line-height: 1.5; color: #00ff00; }
     </style>
 </head>
 <body>
-    <div id="ui-layer">
-        <h1>Dale the Duck</h1>
-        <p>Distance Traveled: <span id="dist">0</span>px</p>
+
+    <div id="ui">
+        <h1 style="margin:0;">DALE</h1>
+        <p>Dale's Size: <span id="size-val">100</span>px</p>
     </div>
 
-    <div id="update-log">
-        <strong>Recent Updates:</strong>
-        <ul id="log-list">
-            <li>Renamed to Dale</li>
-            <li>Added Drag & Toss</li>
-            <li>Added Growth System</li>
-        </ul>
+    <div id="update-panel">
+        <h3>Recent Updates</h3>
+        <div id="sheet-content">Fetching logs from the cloud...</div>
     </div>
 
     <img id="pet" src="kaczuha1.gif">
 
     <script>
         const pet = document.getElementById('pet');
-        const distEl = document.getElementById('dist');
-        let posX = 100, posY = 100, targetX = 100, targetY = 100;
-        let isDragging = false, totalDist = 0, size = 100;
+        const sizeVal = document.getElementById('size-val');
+        const log = document.getElementById('sheet-content');
 
-        // 1. Drag & Drop
+        // This is your unique CSV link based on your screenshot
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdORjnp7BDGsEvMp2PqGz96H4uV7ZL0jV5h8taez6p6QiqTR_W8w40-fcJeikp-vUJb3S6rvTPfyn/pub?output=csv";
+
+        async function getUpdates() {
+            try {
+                const response = await fetch(sheetURL);
+                const data = await response.text();
+                // Formats the CSV rows into a nice list
+                log.innerHTML = data.split('\n')
+                    .filter(line => line.trim() !== "")
+                    .map(line => `• ${line.replace(/"/g, "")}`) // Removes extra quotes
+                    .join('<br>');
+            } catch (e) {
+                log.innerHTML = "Update Dale's Google Sheet to see logs here!";
+            }
+        }
+        getUpdates();
+        setInterval(getUpdates, 30000); // Auto-refresh every 30 seconds
+
+        let posX = 150, posY = 150, targetX = 150, targetY = 150, size = 100;
+        let isDragging = false;
+
         pet.onmousedown = () => { isDragging = true; };
         window.onmousemove = (e) => {
             if (isDragging) {
-                posX = e.clientX - (size/2);
-                posY = e.clientY - (size/2);
+                posX = e.clientX - (size/2); posY = e.clientY - (size/2);
                 targetX = posX; targetY = posY;
             }
         };
-        window.onmouseup = () => { isDragging = false; };
+        window.onmouseup = () => { 
+            isDragging = false; 
+            size += 5; 
+            pet.style.width = size + 'px';
+            sizeVal.innerText = size;
+        };
 
-        // 2. Core Brain
-        function update() {
+        function frame() {
             if (!isDragging) {
-                const dx = targetX - posX;
-                const dy = targetY - posY;
+                const dx = targetX - posX, dy = targetY - posY;
                 const dist = Math.sqrt(dx*dx + dy*dy);
-
                 if (dist > 5) {
-                    let moveX = dx * 0.05;
-                    let moveY = dy * 0.05;
-                    posX += moveX;
-                    posY += moveY;
-                    
-                    // Track distance for "Leveling Up"
-                    totalDist += Math.abs(moveX) + Math.abs(moveY);
-                    distEl.innerText = Math.floor(totalDist);
-                    
-                    // Grow Dale as he walks
-                    if (totalDist > size * 10) { 
-                        size += 2; 
-                        pet.style.width = size + 'px';
-                    }
-
+                    posX += dx * 0.05; posY += dy * 0.05;
                     pet.src = "kaczuha 2 1.png";
                     pet.style.transform = dx > 0 ? "scaleX(1)" : "scaleX(-1)";
                 } else {
                     pet.src = "kaczuha1.gif";
                 }
             }
-            pet.style.left = posX + 'px';
-            pet.style.top = posY + 'px';
-            requestAnimationFrame(update);
+            pet.style.left = posX + 'px'; pet.style.top = posY + 'px';
+            requestAnimationFrame(frame);
         }
 
         setInterval(() => {
@@ -92,9 +91,9 @@
                 targetX = Math.random() * (window.innerWidth - size);
                 targetY = Math.random() * (window.innerHeight - size);
             }
-        }, 3000);
+        }, 4000);
 
-        update();
+        frame();
     </script>
 </body>
 </html>
