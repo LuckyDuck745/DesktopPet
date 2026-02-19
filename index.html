@@ -1,50 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dale the Duck</title>
+    <title>Dale's World</title>
     <style>
-        body { margin: 0; background: #222; overflow: hidden; height: 100vh; }
+        body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; height: 100vh; }
         #pet {
             position: absolute;
             width: 100px;
             cursor: grab;
             image-rendering: pixelated;
+            transition: width 0.3s; /* Smooth growth */
+        }
+        #ui-layer { position: fixed; top: 10px; left: 10px; pointer-events: none; }
+        #update-log {
+            position: fixed; bottom: 10px; right: 10px;
+            background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;
+            font-size: 12px; max-width: 200px;
         }
     </style>
 </head>
 <body>
+    <div id="ui-layer">
+        <h1>Dale the Duck</h1>
+        <p>Distance Traveled: <span id="dist">0</span>px</p>
+    </div>
+
+    <div id="update-log">
+        <strong>Recent Updates:</strong>
+        <ul id="log-list">
+            <li>Renamed to Dale</li>
+            <li>Added Drag & Toss</li>
+            <li>Added Growth System</li>
+        </ul>
+    </div>
+
     <img id="pet" src="kaczuha1.gif">
 
     <script>
         const pet = document.getElementById('pet');
-        let posX = 100, posY = 100;
-        let targetX = 100, targetY = 100;
-        let isDragging = false;
+        const distEl = document.getElementById('dist');
+        let posX = 100, posY = 100, targetX = 100, targetY = 100;
+        let isDragging = false, totalDist = 0, size = 100;
 
-        // 1. Drag logic
+        // 1. Drag & Drop
         pet.onmousedown = () => { isDragging = true; };
         window.onmousemove = (e) => {
             if (isDragging) {
-                posX = e.clientX - 50;
-                posY = e.clientY - 50;
-                targetX = posX; 
-                targetY = posY;
+                posX = e.clientX - (size/2);
+                posY = e.clientY - (size/2);
+                targetX = posX; targetY = posY;
             }
         };
         window.onmouseup = () => { isDragging = false; };
 
-        // 2. Movement logic
+        // 2. Core Brain
         function update() {
             if (!isDragging) {
-                const distX = targetX - posX;
-                const distY = targetY - posY;
-                if (Math.abs(distX) > 5 || Math.abs(distY) > 5) {
-                    posX += distX * 0.05;
-                    posY += distY * 0.05;
-                    pet.src = "kaczuha 2 1.png"; // Walking image
-                    pet.style.transform = distX > 0 ? "scaleX(1)" : "scaleX(-1)";
+                const dx = targetX - posX;
+                const dy = targetY - posY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (dist > 5) {
+                    let moveX = dx * 0.05;
+                    let moveY = dy * 0.05;
+                    posX += moveX;
+                    posY += moveY;
+                    
+                    // Track distance for "Leveling Up"
+                    totalDist += Math.abs(moveX) + Math.abs(moveY);
+                    distEl.innerText = Math.floor(totalDist);
+                    
+                    // Grow Dale as he walks
+                    if (totalDist > size * 10) { 
+                        size += 2; 
+                        pet.style.width = size + 'px';
+                    }
+
+                    pet.src = "kaczuha 2 1.png";
+                    pet.style.transform = dx > 0 ? "scaleX(1)" : "scaleX(-1)";
                 } else {
-                    pet.src = "kaczuha1.gif"; // Resting GIF
+                    pet.src = "kaczuha1.gif";
                 }
             }
             pet.style.left = posX + 'px';
@@ -52,11 +87,10 @@
             requestAnimationFrame(update);
         }
 
-        // 3. Random wandering
         setInterval(() => {
             if (!isDragging) {
-                targetX = Math.random() * (window.innerWidth - 100);
-                targetY = Math.random() * (window.innerHeight - 100);
+                targetX = Math.random() * (window.innerWidth - size);
+                targetY = Math.random() * (window.innerHeight - size);
             }
         }, 3000);
 
