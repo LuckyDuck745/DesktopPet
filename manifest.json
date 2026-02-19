@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Kaczuha Desktop Pet",
+  "name": "Kaczuha Duck Pet",
   "version": "1.0",
+  "description": "A friendly duck that wanders your browser.",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
