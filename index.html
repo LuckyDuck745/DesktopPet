@@ -13,13 +13,15 @@
         }
         h3 { margin-top: 0; color: #ffcc00; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; }
         #sheet-content { font-size: 13px; line-height: 1.5; color: #00ff00; }
+        .stat { color: #00ffff; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="ui">
         <h1 style="margin:0;">DALE</h1>
-        <p>Size: <span id="size-val">100</span>px</p>
+        <p>Size: <span id="size-val" class="stat">100</span>px</p>
+        <p>Tosses: <span id="toss-val" class="stat">0</span></p>
     </div>
 
     <div id="update-panel">
@@ -32,9 +34,10 @@
     <script>
         const pet = document.getElementById('pet');
         const sizeVal = document.getElementById('size-val');
+        const tossVal = document.getElementById('toss-val');
         const log = document.getElementById('sheet-content');
 
-        // I built the correct CSV link using your ID from the screenshot!
+        // PASTE YOUR NEW LINK HERE (The one ending in output=csv)
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdORjnp7BDGsEvMp2PqGz96H4uV7ZL0jV5h8taez6p6QiqTR_W8w40-fcJeikp-vUJb3S6rvTPfyn/pub?output=csv";
 
         async function getUpdates() {
@@ -42,19 +45,16 @@
                 const response = await fetch(sheetURL + "&t=" + Date.now());
                 const data = await response.text();
                 const lines = data.split(/\r?\n/).filter(l => l.trim() !== "");
-                
-                // This cleans the text and puts it on the screen
                 log.innerHTML = lines.map(line => `• ${line.replace(/^"|"$/g, '')}`).join('<br>');
             } catch (e) {
-                log.innerHTML = "• Update Dale's Google Sheet!<br>• Grow Dale by dragging him.";
+                log.innerHTML = "• Dale is live!<br>• Grow Dale by dragging him.";
             }
         }
         
         getUpdates();
-        setInterval(getUpdates, 30000); // Check for new updates every 30 seconds
+        setInterval(getUpdates, 30000);
 
-        // --- DALE MOVEMENT & GROWTH ---
-        let posX = 150, posY = 150, targetX = 150, targetY = 150, size = 100;
+        let posX = 150, posY = 150, targetX = 150, targetY = 150, size = 100, tosses = 0;
         let isDragging = false;
 
         pet.onmousedown = () => { isDragging = true; };
@@ -65,10 +65,14 @@
             }
         };
         window.onmouseup = () => { 
-            isDragging = false; 
-            size += 5; // Dale grows 5px every time you move him
-            pet.style.width = size + 'px';
-            sizeVal.innerText = size;
+            if(isDragging) {
+                isDragging = false; 
+                size += 5; 
+                tosses += 1;
+                pet.style.width = size + 'px';
+                sizeVal.innerText = size;
+                tossVal.innerText = tosses;
+            }
         };
 
         function frame() {
