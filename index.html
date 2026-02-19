@@ -19,12 +19,12 @@
 
     <div id="ui">
         <h1 style="margin:0;">DALE</h1>
-        <p>Dale's Size: <span id="size-val">100</span>px</p>
+        <p>Size: <span id="size-val">100</span>px</p>
     </div>
 
     <div id="update-panel">
         <h3>Recent Updates</h3>
-        <div id="sheet-content">Connecting to Dale's Cloud...</div>
+        <div id="sheet-content">Syncing with Dale's Brain...</div>
     </div>
 
     <img id="pet" src="kaczuha1.gif">
@@ -34,30 +34,26 @@
         const sizeVal = document.getElementById('size-val');
         const log = document.getElementById('sheet-content');
 
-        // REPLACED WITH YOUR CSV LINK
+        // I built the correct CSV link using your ID from the screenshot!
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdORjnp7BDGsEvMp2PqGz96H4uV7ZL0jV5h8taez6p6QiqTR_W8w40-fcJeikp-vUJb3S6rvTPfyn/pub?output=csv";
 
         async function getUpdates() {
             try {
-                // We add a 'cache buster' so it doesn't get stuck on old updates
-                const response = await fetch(sheetURL + "&t=" + new Date().getTime());
+                const response = await fetch(sheetURL + "&t=" + Date.now());
                 const data = await response.text();
+                const lines = data.split(/\r?\n/).filter(l => l.trim() !== "");
                 
-                // This splits the rows and cleans up the text
-                const lines = data.split(/\r?\n/);
-                log.innerHTML = lines
-                    .filter(line => line.trim() !== "")
-                    .map(line => `• ${line.replace(/^"|"$/g, '')}`) 
-                    .join('<br>');
+                // This cleans the text and puts it on the screen
+                log.innerHTML = lines.map(line => `• ${line.replace(/^"|"$/g, '')}`).join('<br>');
             } catch (e) {
-                log.innerHTML = "Log in to Google Sheets to update Dale!";
+                log.innerHTML = "• Update Dale's Google Sheet!<br>• Grow Dale by dragging him.";
             }
         }
         
         getUpdates();
-        setInterval(getUpdates, 30000); // Check for new rows every 30 seconds
+        setInterval(getUpdates, 30000); // Check for new updates every 30 seconds
 
-        // --- MOVEMENT ---
+        // --- DALE MOVEMENT & GROWTH ---
         let posX = 150, posY = 150, targetX = 150, targetY = 150, size = 100;
         let isDragging = false;
 
@@ -70,7 +66,7 @@
         };
         window.onmouseup = () => { 
             isDragging = false; 
-            size += 5; 
+            size += 5; // Dale grows 5px every time you move him
             pet.style.width = size + 'px';
             sizeVal.innerText = size;
         };
